@@ -1,7 +1,7 @@
 <template>
   <div class="question-box-container">
     <b-jumbotron>
-      <template v-slot:lead>Some Question</template>
+      <template slot="lead">Some Question</template>
 
       <hr class="my-4" />
 
