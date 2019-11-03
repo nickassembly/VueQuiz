@@ -5,19 +5,109 @@
 
       <hr class="my-4" />
 
-      <p>List of Answers</p>
+      <b-list-group>
+        <b-list-group-item
+          v-for="(answer, index) in shuffledAnswers"
+          :key="index"
+          @click.prevent="selectAnswer(index)"
+          :class="[selectedIndex === index ? 'selected' : '']"
+        >{{ answer }}</b-list-group-item>
+      </b-list-group>
 
-      <b-button variant="primary" href="#">Submit</b-button>
+      <b-button variant="primary" @click="submitAnswer">Submit</b-button>
       <b-button @click="next" variant="success" href="#">Next</b-button>
     </b-jumbotron>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
 export default {
   props: {
     currentQuestion: Object,
-    next: Function
+    next: Function,
+    increment: Function
+  },
+  data() {
+    return {
+      selectedIndex: null,
+      correctIndex: null,
+      shuffledAnswers: []
+    };
+  },
+  // allows you to watch a property of the component state and run a function when the property value changes
+  watch: {
+    // currentQuestion() {
+    //   this.selectedIndex = null;
+    //   this.shuffleAnswers();
+    // }
+    // can set up as object with immediate property (same as using mounted())
+    // can set handler function inside watched properties
+    currentQuestion: {
+      immediate: true,
+      handler() {
+        this.selectedIndex = null;
+        this.shuffleAnswers();
+      }
+    }
+  },
+  // computed properties are derived values automatically updated when their underlying values used to calculate are updated
+  // unlike methods, computed properties are not called and don't accept parameters
+  computed: {
+    answers() {
+      let answers = [...this.currentQuestion.incorrect_answers];
+      answers.push(this.currentQuestion.correct_answer);
+      return answers;
+    }
+  },
+  methods: {
+    selectAnswer(index) {
+      this.selectedIndex = index;
+    },
+    submitAnswer() {
+      let isCorrect = false;
+      if (this.selectedIndex === this.correctIndex) {
+        isCorrect = true;
+      }
+      this.increment(isCorrect);
+    },
+    shuffleAnswers() {
+      let answers = [
+        ...this.currentQuestion.incorrect_answers,
+        this.currentQuestion.correct_answer
+      ];
+      this.shuffledAnswers = _.shuffle(answers);
+      this.correctIndex = this.shuffledAnswers.indexOf(
+        this.currentQuestion.correct_answer
+      );
+    }
   }
 };
 </script>
+
+<style scoped>
+.list-group {
+  margin-bottom: 15px;
+}
+
+.list-group-item:hover {
+  background: #eee;
+  cursor: pointer;
+}
+
+.btn {
+  margin: 0 5px;
+}
+
+.selected {
+  background-color: lightblue;
+}
+
+.correct {
+  background-color: lightgreen;
+}
+
+.incorrect {
+  background-color: red;
+}
+</style>
